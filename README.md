@@ -44,9 +44,91 @@ It includes **citizen** and **admin** dashboards to manage vehicles, exchange of
 - Simple charts using **AWT Canvas**.
 
 ### UI
+
 - Built with **Java Swing & AWT**.
 - Logout button on top-right returns to login without closing the app.
 
+$##PROJECT STRUCTURE
+gvei/
+├─ src/
+│ ├─ AdminDashboard.java
+│ ├─ CitizenDashboard.java
+│ ├─ LoginFrame.java
+│ ├─ RegisterFrame.java
+│ ├─ VehicleRegistrationFrame.java
+│ ├─ OfferApplicationFrame.java
+│ ├─ DBConfig.java
+│ ├─ UserDAO.java
+│ ├─ VehicleDAO.java
+│ ├─ OfferDAO.java
+│ ├─ Utils.java
+│ └─ ChartCanvas.java
+├─ lib/
+│ └─ mysql-connector-java-9.x.x.jar
+├─ gvei.sql # Database schema and sample data
+└─ README.md
+
+
+---
+
+## 🗄️ Database
+
+### Database Name
+`gvei`
+
+### Tables
+
+| Table             | Columns                                                                 |
+|------------------|-------------------------------------------------------------------------|
+| **users**        | user_id, name, email, password, role                                     |
+| **vehicles**     | vehicle_id, owner_id, plate_no, vehicle_type, fuel_type, year, mileage   |
+| **exchange_offers** | offer_id, vehicle_id, exchange_value, subsidy_percent, status           |
+
+### Sample Users
+- Citizens: `role = citizen`  
+- Admin: `role = admin`  
+
+---
+
+## ⚙️ Setup Instructions
+
+1. Install **MySQL/MariaDB** and create the `gvei` database.  
+2. Import the provided `gvei.sql` for tables and sample data.  
+3. Include **MySQL JDBC driver** in your project classpath (`lib/mysql-connector-java-9.x.x.jar`).  
+4. Update `DBConfig.java` with your database credentials.  
+5. Compile and run `LoginFrame.java`.
+
+---
+
+## 🖥️ Usage
+
+1. Start with the **Login** screen.  
+2. **Citizens**:
+   - Register vehicles, view owned vehicles.
+   - Apply for exchange offers.
+   - Export vehicle lists.
+3. **Admins**:
+   - Manage and approve/reject offers.
+   - View statistics and export reports.
+4. Click **Logout** to return to login without closing the application.
+
+---
+
+## 💻 Requirements
+
+- Java 17+  
+- MySQL or MariaDB  
+- JDBC Driver (MySQL Connector/J)  
+
+---
+
+## ⚠️ Notes
+
+- Application uses **Swing** for UI and **AWT Canvas** for simple charts.  
+- CSV exports allow external reporting and analysis.  
+- Ensure JDBC driver version matches your Java version.
+
+---
 ---
 
 ## 🗂️ Project Structure
