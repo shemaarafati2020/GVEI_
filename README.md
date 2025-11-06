@@ -6,6 +6,14 @@
 
 ---
 
+## 📸 Authentication Preview
+
+![Modern authentication flow](docs/images/auth-flow-preview.svg)
+
+> The refreshed login and registration screens feature a gradient-backed layout, inline validation, password-strength guidance, and remember-me support for a smoother onboarding experience.
+
+---
+
 ## 🚀 Overview
 
 The **GVEI Desktop Application** is a Java-based system to support Rwanda’s **Green Vehicle Exchange Initiative**, allowing citizens to exchange old fuel-powered vehicles for electric vehicles with government support.
