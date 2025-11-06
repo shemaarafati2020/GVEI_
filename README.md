@@ -20,6 +20,7 @@ It includes **citizen** and **admin** dashboards to manage vehicles, exchange of
 - Citizen registration and login.
 - Admin login for system management.
 - Role-based access control (citizen/admin).
+- Modernized authentication experience with remember-me support and password-strength guidance.
 
 ### Vehicle Management
 - Citizens can register vehicles:
