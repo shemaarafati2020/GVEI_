@@ -1,0 +1,70 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f9b0f" />
+      <stop offset="100%" stop-color="#4caf50" />
+    </linearGradient>
+    <linearGradient id="panelGradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#f6fff6" stop-opacity="0.98" />
+    </linearGradient>
+    <style>
+      .title { font: 700 48px 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; fill: #ffffff; }
+      .subtitle { font: 500 24px 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; fill: rgba(255,255,255,0.9); }
+      .panel-title { font: 700 26px 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; fill: #1b5e20; }
+      .label { font: 600 18px 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; fill: #2e7d32; }
+      .input { font: 400 18px 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; fill: #5f6368; }
+      .helper { font: 400 16px 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; fill: #388e3c; }
+      .button { font: 700 18px 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; fill: #ffffff; }
+    </style>
+  </defs>
+  <rect width="1280" height="720" rx="32" fill="url(#bgGradient)" />
+  <g transform="translate(80, 96)">
+    <text class="title">GVEI Authentication Flow</text>
+    <text class="subtitle" y="68">Modernized login and registration experience with inline feedback</text>
+  </g>
+  <g transform="translate(160, 200)">
+    <rect width="420" height="400" rx="28" fill="url(#panelGradient)" stroke="#c8e6c9" stroke-width="3" />
+    <text class="panel-title" x="36" y="64">Sign In</text>
+    <g transform="translate(36, 112)">
+      <text class="label" y="0">Email Address</text>
+      <rect y="14" width="348" height="52" rx="12" fill="#ffffff" stroke="#a5d6a7" stroke-width="2" />
+      <text class="input" x="20" y="48">citizen@gvei.rw</text>
+    </g>
+    <g transform="translate(36, 210)">
+      <text class="label" y="0">Password</text>
+      <rect y="14" width="348" height="52" rx="12" fill="#ffffff" stroke="#a5d6a7" stroke-width="2" />
+      <text class="input" x="20" y="48">••••••••</text>
+      <text class="helper" x="0" y="96">✓ Remember me • Inline validation feedback</text>
+    </g>
+    <g transform="translate(36, 320)">
+      <rect width="200" height="56" rx="28" fill="#2e7d32" />
+      <text class="button" x="40" y="36">Login</text>
+    </g>
+  </g>
+  <g transform="translate(700, 200)">
+    <rect width="420" height="400" rx="28" fill="url(#panelGradient)" stroke="#c8e6c9" stroke-width="3" />
+    <text class="panel-title" x="36" y="64">Create Account</text>
+    <g transform="translate(36, 112)">
+      <text class="label" y="0">Full Name</text>
+      <rect y="14" width="348" height="52" rx="12" fill="#ffffff" stroke="#a5d6a7" stroke-width="2" />
+      <text class="input" x="20" y="48">Amani Uwase</text>
+    </g>
+    <g transform="translate(36, 210)">
+      <text class="label" y="0">Email Address</text>
+      <rect y="14" width="348" height="52" rx="12" fill="#ffffff" stroke="#a5d6a7" stroke-width="2" />
+      <text class="input" x="20" y="48">amani@gvei.rw</text>
+    </g>
+    <g transform="translate(36, 308)">
+      <text class="label" y="0">Password Strength</text>
+      <rect y="14" width="348" height="52" rx="12" fill="#ffffff" stroke="#a5d6a7" stroke-width="2" />
+      <rect y="74" width="260" height="12" rx="6" fill="#c8e6c9" />
+      <rect y="74" width="210" height="12" rx="6" fill="#43a047" />
+      <text class="helper" x="0" y="116">Strong password • Confirmation required</text>
+    </g>
+    <g transform="translate(36, 392)">
+      <rect width="200" height="56" rx="28" fill="#2e7d32" />
+      <text class="button" x="30" y="36">Create account</text>
+    </g>
+  </g>
+</svg>
