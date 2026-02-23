@@ -35,6 +35,49 @@ public class OfferDAO {
         return out;
     }
 
+    public static java.util.List<Map<String,Object>> listOffersFiltered(String statusFilter, String keyword) {
+        java.util.List<Map<String,Object>> out = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+                "SELECT o.*, v.plate_no, u.name FROM exchange_offers o " +
+                "JOIN vehicles v ON o.vehicle_id=v.vehicle_id " +
+                "JOIN users u ON v.owner_id=u.user_id WHERE 1=1"
+        );
+        java.util.List<Object> params = new ArrayList<>();
+
+        if (statusFilter != null && !statusFilter.isBlank() && !"all".equalsIgnoreCase(statusFilter)) {
+            sql.append(" AND o.status=?");
+            params.add(statusFilter.toLowerCase());
+        }
+        if (keyword != null && !keyword.isBlank()) {
+            sql.append(" AND (LOWER(v.plate_no) LIKE ? OR LOWER(u.name) LIKE ?)");
+            String pattern = "%" + keyword.toLowerCase().trim() + "%";
+            params.add(pattern);
+            params.add(pattern);
+        }
+        sql.append(" ORDER BY o.created_at DESC");
+
+        try (Connection c = DBConfig.getConnection();
+             PreparedStatement p = c.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                p.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet r = p.executeQuery()) {
+                while (r.next()) {
+                    Map<String,Object> m = new HashMap<>();
+                    m.put("offer_id", r.getInt("offer_id"));
+                    m.put("vehicle_id", r.getInt("vehicle_id"));
+                    m.put("plate_no", r.getString("plate_no"));
+                    m.put("owner_name", r.getString("name"));
+                    m.put("exchange_value", r.getDouble("exchange_value"));
+                    m.put("subsidy_percent", r.getDouble("subsidy_percent"));
+                    m.put("status", r.getString("status"));
+                    out.add(m);
+                }
+            }
+        } catch (Exception ex) { ex.printStackTrace(); }
+        return out;
+    }
+
     public static boolean updateStatus(int offerId, String status) {
         String sql = "UPDATE exchange_offers SET status=? WHERE offer_id=?";
         try (Connection c = DBConfig.getConnection();
@@ -44,6 +87,37 @@ public class OfferDAO {
             p.executeUpdate();
             return true;
         } catch (Exception ex) { ex.printStackTrace(); return false; }
+    }
+
+    public static int updateStatusBulk(java.util.List<Integer> offerIds, String status) {
+        if (offerIds == null || offerIds.isEmpty()) return 0;
+        String sql = "UPDATE exchange_offers SET status=? WHERE offer_id=?";
+        try (Connection c = DBConfig.getConnection();
+             PreparedStatement p = c.prepareStatement(sql)) {
+            for (Integer id : offerIds) {
+                p.setString(1, status);
+                p.setInt(2, id);
+                p.addBatch();
+            }
+            int[] rs = p.executeBatch();
+            int updated = 0;
+            for (int r : rs) {
+                if (r > 0) updated += r;
+            }
+            return updated;
+        } catch (Exception ex) { ex.printStackTrace(); return 0; }
+    }
+
+    public static boolean hasActiveOfferForVehicle(int vehicleId) {
+        String sql = "SELECT 1 FROM exchange_offers WHERE vehicle_id=? AND status IN ('pending','approved') LIMIT 1";
+        try (Connection c = DBConfig.getConnection();
+             PreparedStatement p = c.prepareStatement(sql)) {
+            p.setInt(1, vehicleId);
+            try (ResultSet r = p.executeQuery()) {
+                return r.next();
+            }
+        } catch (Exception ex) { ex.printStackTrace(); }
+        return false;
     }
 
     public static Map<String,Double> stats() {

@@ -34,6 +34,8 @@ It includes **citizen** and **admin** dashboards to manage vehicles, exchange of
 - Citizens can register vehicles:
   - Plate number, type, fuel type, manufacture year, mileage.
 - List and view owned vehicles.
+- Search/filter owned vehicles by plate, type, or fuel.
+- Live summary insights (eligible vehicles count and average mileage).
 - Export vehicle data to **CSV**.
 
 ### Exchange Management
@@ -41,9 +43,12 @@ It includes **citizen** and **admin** dashboards to manage vehicles, exchange of
   - Age > 5 years
   - Fuel type = Petrol/Diesel
 - Citizens can apply for exchange offers.
+- Duplicate active-offer prevention per vehicle (no duplicate pending/approved requests).
 - Admins can approve/reject offers.
+- Bulk approve/reject for multiple selected offers.
+- Filter offers by status and search by vehicle plate/owner name.
 - Offers display exchange value, subsidy percentage, and status.
-- Export offer data to CSV.
+- Export currently filtered offer view to CSV.
 
 ### Reporting & Analytics
 - Admin dashboard shows:

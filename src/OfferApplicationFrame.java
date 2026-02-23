@@ -61,6 +61,10 @@ public class OfferApplicationFrame extends JFrame {
             String fuel = (String)v.get("fuel_type");
             int m = (Integer)v.get("mileage");
             if (!Helper.isEligible(fuel, y)) { Utils.showMsg(this, "Error", "Vehicle not eligible."); return; }
+            if (OfferDAO.hasActiveOfferForVehicle(vid)) {
+                Utils.showMsg(this, "Info", "This vehicle already has a pending/approved offer.");
+                return;
+            }
             double val = Helper.calculateExchangeValue(y, m);
             double sub = Helper.calculateSubsidyPercent(y);
             boolean ok = OfferDAO.createOffer(vid, val, sub);

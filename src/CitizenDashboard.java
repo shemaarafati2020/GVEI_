@@ -10,6 +10,8 @@ public class CitizenDashboard extends JFrame {
     private int userId;
     private String userName;
     private DefaultTableModel tableModel;
+    private JTextField searchField;
+    private JLabel summaryLabel;
 
     public CitizenDashboard(int userId, String userName) {
         this.userId = userId;
@@ -27,10 +29,17 @@ public class CitizenDashboard extends JFrame {
         JButton bMyVehicles = new JButton("My Vehicles");
         JButton bApplyOffer = new JButton("Apply for Exchange");
         JButton bExport = new JButton("Export My Vehicles CSV");
+        JButton bSearch = new JButton("Search");
+        JButton bReset = new JButton("Reset");
+        searchField = new JTextField(12);
         top.add(bRegVehicle);
         top.add(bMyVehicles);
         top.add(bApplyOffer);
         top.add(bExport);
+        top.add(new JLabel("Filter (plate/type/fuel):"));
+        top.add(searchField);
+        top.add(bSearch);
+        top.add(bReset);
 
         // Logout button - top-right
         JButton bLogout = new JButton("Logout");
@@ -51,11 +60,20 @@ public class CitizenDashboard extends JFrame {
         JTable table = new JTable(tableModel);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
+        summaryLabel = new JLabel(" ");
+        summaryLabel.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
+        add(summaryLabel, BorderLayout.SOUTH);
+
         // Button actions
         bRegVehicle.addActionListener(e -> new VehicleRegistrationFrame(userId).setVisible(true));
         bMyVehicles.addActionListener(e -> refreshList());
         bApplyOffer.addActionListener(e -> new OfferApplicationFrame(userId).setVisible(true));
         bExport.addActionListener(e -> exportCSV());
+        bSearch.addActionListener(e -> refreshList());
+        bReset.addActionListener(e -> {
+            searchField.setText("");
+            refreshList();
+        });
 
         // Populate initial list
         refreshList();
@@ -67,15 +85,45 @@ public class CitizenDashboard extends JFrame {
     private void refreshList() {
         tableModel.setRowCount(0);
         List<Map<String,Object>> list = VehicleDAO.listByOwner(userId);
+        String keyword = searchField.getText() == null ? "" : searchField.getText().trim().toLowerCase();
+        int total = 0;
+        int eligible = 0;
+        int mileageSum = 0;
         for (Map<String,Object> v : list) {
+            String plate = String.valueOf(v.get("plate_no"));
+            String type = String.valueOf(v.get("vehicle_type"));
+            String fuel = String.valueOf(v.get("fuel_type"));
+            int year = (Integer) v.get("year");
+            int mileage = (Integer) v.get("mileage");
+
+            if (!keyword.isEmpty()) {
+                String hay = (plate + " " + type + " " + fuel).toLowerCase();
+                if (!hay.contains(keyword)) {
+                    continue;
+                }
+            }
+
+            total++;
+            mileageSum += mileage;
+            if (Helper.isEligible(fuel, year)) {
+                eligible++;
+            }
+
             tableModel.addRow(new Object[]{
                     v.get("vehicle_id"),
-                    v.get("plate_no"),
-                    v.get("vehicle_type"),
-                    v.get("fuel_type"),
-                    v.get("year"),
-                    v.get("mileage")
+                    plate,
+                    type,
+                    fuel,
+                    year,
+                    mileage
             });
+        }
+
+        if (total == 0) {
+            summaryLabel.setText("No matching vehicles. Clear the filter or register a new vehicle.");
+        } else {
+            double avgMileage = (double) mileageSum / total;
+            summaryLabel.setText(String.format("Showing %d vehicle(s) | Eligible for exchange: %d | Avg mileage: %.0f km", total, eligible, avgMileage));
         }
     }
 

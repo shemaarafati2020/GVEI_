@@ -3,6 +3,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +11,9 @@ public class AdminDashboard extends JFrame {
     private int adminId;
     private String adminName;
     private DefaultTableModel tableModel;
+    private JTable offersTable;
+    private JComboBox<String> statusFilter;
+    private JTextField searchField;
 
     public AdminDashboard(int adminId, String adminName) {
         this.adminId = adminId;
@@ -23,11 +27,22 @@ public class AdminDashboard extends JFrame {
         // Top panel with left-aligned buttons
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));
         top.add(new JLabel("Admin: " + adminName));
+
+        statusFilter = new JComboBox<>(new String[]{"all", "pending", "approved", "rejected"});
+        searchField = new JTextField(14);
         JButton bRefresh = new JButton("Refresh Offers");
+        JButton bApplyFilter = new JButton("Apply Filters");
+        JButton bReset = new JButton("Reset");
         JButton bApprove = new JButton("Approve");
         JButton bReject = new JButton("Reject");
         JButton bExport = new JButton("Export Offers CSV");
         JButton bReport = new JButton("Show Stats");
+        top.add(new JLabel("Status:"));
+        top.add(statusFilter);
+        top.add(new JLabel("Search (plate/owner):"));
+        top.add(searchField);
+        top.add(bApplyFilter);
+        top.add(bReset);
         top.add(bRefresh);
         top.add(bApprove);
         top.add(bReject);
@@ -50,13 +65,20 @@ public class AdminDashboard extends JFrame {
         // Table for offers
         tableModel = new DefaultTableModel(
                 new String[]{"offer_id","vehicle_id","plate_no","owner_name","exchange_value","subsidy_percent","status"},0);
-        JTable table = new JTable(tableModel);
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        offersTable = new JTable(tableModel);
+        offersTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        add(new JScrollPane(offersTable), BorderLayout.CENTER);
 
         // Button actions
         bRefresh.addActionListener(e -> refreshOffers());
-        bApprove.addActionListener(e -> changeStatus(table, "approved"));
-        bReject.addActionListener(e -> changeStatus(table, "rejected"));
+        bApplyFilter.addActionListener(e -> refreshOffers());
+        bReset.addActionListener(e -> {
+            statusFilter.setSelectedItem("all");
+            searchField.setText("");
+            refreshOffers();
+        });
+        bApprove.addActionListener(e -> changeStatus("approved"));
+        bReject.addActionListener(e -> changeStatus("rejected"));
         bExport.addActionListener(e -> exportOffersCSV());
         bReport.addActionListener(e -> showStats());
 
@@ -67,7 +89,9 @@ public class AdminDashboard extends JFrame {
 
     private void refreshOffers() {
         tableModel.setRowCount(0);
-        List<Map<String,Object>> offers = OfferDAO.listAllOffers();
+        String selectedStatus = (String) statusFilter.getSelectedItem();
+        String keyword = searchField.getText();
+        List<Map<String,Object>> offers = OfferDAO.listOffersFiltered(selectedStatus, keyword);
         for (Map<String,Object> o : offers) {
             tableModel.addRow(new Object[]{
                     o.get("offer_id"),
@@ -81,13 +105,19 @@ public class AdminDashboard extends JFrame {
         }
     }
 
-    private void changeStatus(JTable table, String target) {
-        int row = table.getSelectedRow();
-        if (row < 0) { Utils.showMsg(this, "Error", "Select an offer"); return; }
-        int id = (Integer)table.getValueAt(row, 0);
-        boolean ok = OfferDAO.updateStatus(id, target);
-        if (ok) {
-            Utils.showMsg(this, "OK", "Status updated to " + target);
+    private void changeStatus(String target) {
+        int[] rows = offersTable.getSelectedRows();
+        if (rows.length < 1) {
+            Utils.showMsg(this, "Error", "Select at least one offer");
+            return;
+        }
+        List<Integer> ids = new ArrayList<>();
+        for (int row : rows) {
+            ids.add((Integer) offersTable.getValueAt(row, 0));
+        }
+        int updated = OfferDAO.updateStatusBulk(ids, target);
+        if (updated > 0) {
+            Utils.showMsg(this, "OK", "Updated " + updated + " offer(s) to " + target);
             refreshOffers();
         } else {
             Utils.showMsg(this, "Error", "Failed update");
@@ -95,8 +125,7 @@ public class AdminDashboard extends JFrame {
     }
 
     private void exportOffersCSV() {
-        List<Map<String,Object>> offers = OfferDAO.listAllOffers();
-        if (offers.isEmpty()) { Utils.showMsg(this, "Export", "No offers to export."); return; }
+        if (tableModel.getRowCount() == 0) { Utils.showMsg(this, "Export", "No offers to export."); return; }
         JFileChooser fc = new JFileChooser();
         fc.setSelectedFile(new File("offers.csv"));
         int res = fc.showSaveDialog(this);
@@ -104,15 +133,15 @@ public class AdminDashboard extends JFrame {
         File f = fc.getSelectedFile();
         try (PrintWriter pw = new PrintWriter(f)) {
             pw.println("offer_id,vehicle_id,plate_no,owner_name,exchange_value,subsidy_percent,status");
-            for (Map<String,Object> o : offers) {
+            for (int i = 0; i < tableModel.getRowCount(); i++) {
                 pw.printf("%d,%d,%s,%s,%.2f,%.2f,%s%n",
-                        (Integer)o.get("offer_id"),
-                        (Integer)o.get("vehicle_id"),
-                        o.get("plate_no"),
-                        o.get("owner_name"),
-                        (Double)o.get("exchange_value"),
-                        (Double)o.get("subsidy_percent"),
-                        (String)o.get("status"));
+                        (Integer)tableModel.getValueAt(i, 0),
+                        (Integer)tableModel.getValueAt(i, 1),
+                        String.valueOf(tableModel.getValueAt(i, 2)),
+                        String.valueOf(tableModel.getValueAt(i, 3)),
+                        ((Number)tableModel.getValueAt(i, 4)).doubleValue(),
+                        ((Number)tableModel.getValueAt(i, 5)).doubleValue(),
+                        String.valueOf(tableModel.getValueAt(i, 6)));
             }
             Utils.showMsg(this, "Export", "CSV exported successfully.");
         } catch (Exception ex) {
